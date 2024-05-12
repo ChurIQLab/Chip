@@ -43,3 +43,22 @@ class ChipStorage {
         return chip
     }
 }
+
+class ChipGeneratingThread: Thread {
+    let storage: ChipStorage
+    let duration: TimeInterval = 20
+
+    init(storage: ChipStorage) {
+        self.storage = storage
+    }
+
+    override func main() {
+        let startDate = Date()
+        while Date().timeIntervalSince(startDate) < duration {
+            let chip = Chip.make()
+            storage.push(chip: chip)
+            print("Генератор: создана микросхема \(chip.chipType)")
+            Thread.sleep(forTimeInterval: 2)
+        }
+    }
+}
