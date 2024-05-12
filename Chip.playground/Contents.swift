@@ -62,3 +62,23 @@ class ChipGeneratingThread: Thread {
         }
     }
 }
+
+
+class ChipWorkerThread: Thread {
+    let storage: ChipStorage
+
+    init(storage: ChipStorage) {
+        self.storage = storage
+    }
+
+    override func main() {
+        while true {
+            guard let chip = storage.pop() else {
+                return
+            }
+            print("Рабочий: пайка микросхемы \(chip.chipType)")
+            chip.sodering()
+            print("Рабочий: пайка микросхемы \(chip.chipType) завершена")
+        }
+    }
+}
