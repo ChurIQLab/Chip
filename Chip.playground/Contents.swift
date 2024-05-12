@@ -25,22 +25,20 @@ public struct Chip {
 
 class ChipStorage {
     private var chips : [Chip] = []
-    private let accessQueue = DispatchQueue(label: "ChipStorageAccess", attributes: .concurrent)
+    private let mutex = NSLock()
 
     func push(chip: Chip) {
-        accessQueue.async {
-            self.chips.append(chip)
-        }
+        mutex.lock()
+        self.chips.append(chip)
+        mutex.unlock()
     }
 
     func pop() -> Chip? {
-        var chip: Chip?
-        accessQueue.async {
-            if !self.chips.isEmpty {
-                chip = self.chips.removeLast()
-            }
+        mutex.lock()
+        defer {
+            mutex.unlock()
         }
-        return chip
+        return chips.popLast()
     }
 }
 
@@ -60,6 +58,7 @@ class ChipGeneratingThread: Thread {
             print("Генератор: создана микросхема \(chip.chipType)")
             Thread.sleep(forTimeInterval: 2)
         }
+        print("Генератор завершил работу")
     }
 }
 
@@ -74,6 +73,8 @@ class ChipWorkerThread: Thread {
     override func main() {
         while true {
             guard let chip = storage.pop() else {
+                print("Рабочий: микросхемы отсутствуют, ждем...")
+                Thread.sleep(forTimeInterval: 1)
                 return
             }
             print("Рабочий: пайка микросхемы \(chip.chipType)")
