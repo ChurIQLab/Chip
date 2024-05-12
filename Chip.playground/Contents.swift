@@ -22,3 +22,24 @@ public struct Chip {
         sleep(UInt32(soderingTime))
     }
 }
+
+class ChipStorage {
+    private var chips : [Chip] = []
+    private let accessQueue = DispatchQueue(label: "ChipStorageAccess", attributes: .concurrent)
+
+    func push(chip: Chip) {
+        accessQueue.async {
+            self.chips.append(chip)
+        }
+    }
+
+    func pop() -> Chip? {
+        var chip: Chip?
+        accessQueue.async {
+            if !self.chips.isEmpty {
+                chip = self.chips.removeLast()
+            }
+        }
+        return chip
+    }
+}
