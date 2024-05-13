@@ -65,17 +65,23 @@ class ChipGeneratingThread: Thread {
 
 class ChipWorkerThread: Thread {
     let storage: ChipStorage
+    let generatorThread: ChipGeneratingThread
 
-    init(storage: ChipStorage) {
+    init(storage: ChipStorage, generatorThread: ChipGeneratingThread) {
         self.storage = storage
+        self.generatorThread = generatorThread
     }
 
     override func main() {
-        while true {
+        while !isCancelled {
             guard let chip = storage.pop() else {
+                if generatorThread.isFinished {
+                    print("Рабочий завершил работу")
+                    break
+                }
                 print("Рабочий: микросхемы отсутствуют, ждем...")
                 Thread.sleep(forTimeInterval: 1)
-                return
+                continue
             }
             print("Рабочий: пайка микросхемы \(chip.chipType)")
             chip.sodering()
@@ -83,3 +89,16 @@ class ChipWorkerThread: Thread {
         }
     }
 }
+
+let storage = ChipStorage()
+let generatorThread = ChipGeneratingThread(storage: storage)
+let workerThread = ChipWorkerThread(storage: storage, generatorThread: generatorThread)
+
+generatorThread.start()
+workerThread.start()
+
+while !workerThread.isFinished {
+    Thread.sleep(forTimeInterval: 0.1)
+}
+
+print("Все зхадачи выполнены!")
