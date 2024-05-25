@@ -67,11 +67,21 @@ class ChipGeneratingThread: Thread {
         let startDate = Date()
         while Date().timeIntervalSince(startDate) < duration {
             let chip = Chip.make()
+            print(
+                "\(getCurrentFormattedDate()) Чип \(chip.chipType.rawValue) создан."
+                +
+                " Чипы в коробке: [\(storage.getRemainingChips())]"
+            )
             storage.push(chip: chip)
-            print("Генератор: создана микросхема \(chip.chipType)")
+            print(
+                "\(getCurrentFormattedDate()) Чип \(chip.chipType.rawValue) добавлен в коробку."
+                +
+                " Чипы в коробке: [\(storage.getRemainingChips())]"
+            )
             Thread.sleep(forTimeInterval: 2)
         }
-        print("Генератор завершил работу")
+        cancel()
+        print("Генератор завершил работу\n")
     }
 }
 
