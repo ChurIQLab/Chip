@@ -1,5 +1,14 @@
 import Foundation
 
+let dateFormatter = DateFormatter()
+dateFormatter.dateStyle = .medium
+dateFormatter.timeStyle = .medium
+dateFormatter.locale = Locale(identifier: "ru_RU")
+
+func getCurrentFormattedDate() -> String {
+    return dateFormatter.string(from: Date())
+}
+
 public struct Chip {
     public enum ChipType: UInt32 {
         case small = 1
