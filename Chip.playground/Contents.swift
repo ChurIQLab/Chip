@@ -99,17 +99,29 @@ class ChipWorkerThread: Thread {
         while !isCancelled {
             guard let chip = storage.pop() else {
                 if generatorThread.isFinished {
-                    print("Рабочий завершил работу")
+                    print("Рабочий завершил работу\n")
                     break
                 }
-                print("Рабочий: микросхемы отсутствуют, ждем...")
+                print("Чипы отсутствуют, ждем...")
                 Thread.sleep(forTimeInterval: 1)
                 continue
             }
-            print("Рабочий: пайка микросхемы \(chip.chipType)")
+            print(
+                "\(getCurrentFormattedDate()) Чип \(chip.chipType.rawValue) взят из коробки."
+                +
+                " Оставшиеся чипы: [\(storage.getRemainingChips())]\n"
+            )
+            Thread.sleep(forTimeInterval: 1)
+
             chip.sodering()
-            print("Рабочий: пайка микросхемы \(chip.chipType) завершена")
+            print(
+                "\(getCurrentFormattedDate()) Чип \(chip.chipType.rawValue) запаян."
+                +
+                " Оставшиеся чипы: [\(storage.getRemainingChips())]"
+            )
         }
+        cancel()
+        print("Все задачи выполнены!")
     }
 }
 
@@ -119,9 +131,3 @@ let workerThread = ChipWorkerThread(storage: storage, generatorThread: generator
 
 generatorThread.start()
 workerThread.start()
-
-while !workerThread.isFinished {
-    Thread.sleep(forTimeInterval: 0.1)
-}
-
-print("Все зхадачи выполнены!")
