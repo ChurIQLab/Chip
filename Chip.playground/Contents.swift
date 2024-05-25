@@ -49,6 +49,10 @@ class ChipStorage {
         }
         return chips.popLast()
     }
+
+    func getRemainingChips() -> String {
+        return chips.map { "\($0.chipType.rawValue)" }.joined(separator: ", ")
+    }
 }
 
 class ChipGeneratingThread: Thread {
